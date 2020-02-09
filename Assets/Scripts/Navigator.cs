@@ -22,7 +22,8 @@ public class Navigator : MonoBehaviour
 
         foreach (GameObject tile in tiles)
         {
-            if (tile.name.Contains("Water") || tile.name.Contains("Rock"))
+            RaycastHit2D hit = Physics2D.Raycast(tile.transform.position, Vector2.up, 0.2f, 1 << LayerMask.NameToLayer("Building"));
+            if (hit || tile.name.Contains("Water") || tile.name.Contains("Rock"))
             {
                 tilesMap[(int)tile.transform.localPosition.x, (int)-tile.transform.localPosition.y] = false;
             }

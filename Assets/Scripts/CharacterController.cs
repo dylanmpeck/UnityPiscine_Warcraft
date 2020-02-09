@@ -34,8 +34,6 @@ public class CharacterController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //if (currentPath.Count == 1)
-            //target = new Vector3(mouseClickPos.x, mouseClickPos.y, transform.position.z);
         if (currentPath.Count > 1 &&
             Vector3.Distance(target, transform.position) <= 0.15f)
         {
@@ -48,15 +46,16 @@ public class CharacterController : MonoBehaviour
             animator.SetBool("Moving", false);
         }
 
-        if (currentPath.Count > 1)
-            facingDirection = (target - this.transform.position).normalized;
+        facingDirection = (target - this.transform.position).normalized;
         if (facingDirection.x < 0)
             GetComponent<SpriteRenderer>().flipX = true;
         else
             GetComponent<SpriteRenderer>().flipX = false;
-        animator.SetFloat("XDir", facingDirection.x);
-        animator.SetFloat("YDir", facingDirection.y);
-
+        if (facingDirection.x != 0 || facingDirection.y != 0)
+        {
+            animator.SetFloat("XDir", facingDirection.x);
+            animator.SetFloat("YDir", facingDirection.y);
+        }
         transform.position = Vector3.MoveTowards(transform.position, target, 1.5f * Time.deltaTime);
     }
 
