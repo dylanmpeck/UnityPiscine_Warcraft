@@ -15,19 +15,9 @@ public class CharacterController : MonoBehaviour
     [HideInInspector] public Vector3 target;
     [HideInInspector] public Vector3 facingDirection = Vector3.zero;
 
-    [SerializeField] List<AudioSource> audioSources;
-
     [SerializeField] AudioSource attackFX;
 
     [SerializeField] AudioClip dead;
-
-    bool whichAudioSource;
-
-    [SerializeField] List<AudioClip> selectedSounds;
-    [SerializeField] List<AudioClip> acknowledgeSounds;
-    [SerializeField] List<AudioClip> annoyedSounds;
-
-    public bool annoyed = false;
 
     Stack<PathFind.Point> currentPath = new Stack<PathFind.Point>();
 
@@ -175,15 +165,6 @@ public class CharacterController : MonoBehaviour
     public void OnSelect()
     {
         GetComponent<SpriteOutline>().enabled = true;
-        if (annoyed)
-        {
-            annoyed = false;
-            PlaySound(annoyedSounds);
-        }
-        else
-        {
-            PlaySound(selectedSounds);
-        }
         GetComponent<SpriteRenderer>().sortingOrder = 2;
     }
 
@@ -193,7 +174,7 @@ public class CharacterController : MonoBehaviour
         GetComponent<SpriteOutline>().enabled = false;
     }
 
-    public void StartMove(Vector3 tilePos, bool attackMove = false, bool enemy = false)
+    public void StartMove(Vector3 tilePos, bool attackMove = false)
     {
         currentPath.Clear();
         currentPath = Navigator.GetPath((int)transform.position.x, (int)-transform.position.y,
@@ -207,13 +188,12 @@ public class CharacterController : MonoBehaviour
         {
             animator.SetBool("Attack", false);
             attacking = false;
-            if (!enemy) PlaySound(acknowledgeSounds);
             stoppingDistance = moveStopDist;
             attackTimer = 0.0f;
         }
     }
 
-    public void Attack(GameObject enemyTarget, bool playerAttack = true)
+    public void Attack(GameObject enemyTarget)
     {
         if (LayerMask.LayerToName(enemyTarget.layer) == "Building")
             attackStopDist = 1.5f;
@@ -221,32 +201,8 @@ public class CharacterController : MonoBehaviour
             attackStopDist = 1.0f;
         enemyToAttack = enemyTarget;
         //target = enemyToAttack.transform.position;
-        StartMove(enemyTarget.transform.position, false, true);
+        StartMove(enemyTarget.transform.position, false);
         attacking = true;
-        if (playerAttack) PlaySound(acknowledgeSounds);
-    }
-
-    // Crossfades one audio source with the other for smooth clip transitions.
-    void PlaySound(List<AudioClip> soundChoices)
-    {
-        StartCoroutine(StartFade(audioSources[Convert.ToInt32(whichAudioSource)], 0.16f, 0.0f));
-        whichAudioSource = !whichAudioSource;
-        audioSources[Convert.ToInt32(whichAudioSource)].volume = 1.0f;
-        audioSources[Convert.ToInt32(whichAudioSource)].PlayOneShot(soundChoices[UnityEngine.Random.Range(0, soundChoices.Count)]);
-    }
-
-    public IEnumerator StartFade(AudioSource audioSource, float duration, float targetVolume)
-    {
-        float currentTime = 0;
-        float start = audioSource.volume;
-
-        while (currentTime < duration)
-        {
-            currentTime += Time.deltaTime;
-            audioSource.volume = Mathf.Lerp(start, targetVolume, currentTime / duration);
-            yield return null;
-        }
-        yield break;
     }
 
     public void ReceiveDamage(int damage)

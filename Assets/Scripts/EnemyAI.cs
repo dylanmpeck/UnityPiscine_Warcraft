@@ -35,18 +35,18 @@ public class EnemyAI : MonoBehaviour
 
         if (baseAttacked && targetingPlayerBase)
         {
-            controller.StartMove(OrcTownCenter.transform.position, false, true);
+            controller.StartMove(OrcTownCenter.transform.position, false);
         }
 
         if (inactive)
         {
             if (targetingPlayerBase)
             {
-                controller.StartMove(HumanTownCenter.transform.position, false, true);
+                controller.StartMove(HumanTownCenter.transform.position, false);
             }
             else
             {
-                controller.StartMove(OrcTownCenter.transform.position, false, true);
+                controller.StartMove(OrcTownCenter.transform.position, false);
             }
             inactive = false;
         }
@@ -84,7 +84,7 @@ public class EnemyAI : MonoBehaviour
             if ((currentTarget == null && closestTarget != null) || (closestTarget && closestTarget != currentTarget))
             {
                 currentTarget = closestTarget;
-                controller.Attack(closestTarget, false);
+                controller.Attack(closestTarget);
             }
         }
     }
