@@ -8,10 +8,16 @@ public class TownHall : Building
     [SerializeField] Transform spawnLocation;
     float timer = 0.0f;
 
+    public static float OrcSpawnTime = 10.0f;
+    public static float HumanSpawnTime = 10.0f;
+
+    float spawnTime;
+
     // Update is called once per frame
     void Update()
     {
-       if (timer >= 10.0f)
+        spawnTime = (race == Races.Human) ? HumanSpawnTime : OrcSpawnTime;
+       if (timer >= spawnTime)
         {
             timer = 0.0f;
             GameObject spawnedUnit = Instantiate(unit, spawnLocation.position, Quaternion.identity);

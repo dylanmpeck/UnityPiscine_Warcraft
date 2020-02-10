@@ -5,22 +5,26 @@ using UnityEngine;
 public class Navigator : MonoBehaviour
 {
     [SerializeField] List<GameObject> tiles;
+    static List<GameObject> _tiles;
 
     [SerializeField] int width;
     [SerializeField] int height;
 
     static bool[,] tilesMap;
 
-    static PathFind.Grid grid;
-
     static bool foundPath;
 
     // Start is called before the first frame update
     void Start()
     {
+        _tiles = tiles;
         tilesMap = new bool[width, height];
+        RefreshTileMap();
+    }
 
-        foreach (GameObject tile in tiles)
+    public static void RefreshTileMap()
+    {
+        foreach (GameObject tile in _tiles)
         {
             RaycastHit2D hit = Physics2D.Raycast(tile.transform.position, Vector2.up, 0.2f, 1 << LayerMask.NameToLayer("Building"));
             if (hit || tile.name.Contains("Water") || tile.name.Contains("Rock"))
@@ -32,8 +36,6 @@ public class Navigator : MonoBehaviour
                 tilesMap[(int)tile.transform.localPosition.x, (int)-tile.transform.localPosition.y] = true;
             }
         }
-
-        grid = new PathFind.Grid(width, height, tilesMap);
     }
 
     public static Stack<PathFind.Point> GetPath(int startX, int startY, int endX, int endY)
@@ -41,10 +43,14 @@ public class Navigator : MonoBehaviour
         PathFind.Point _from = new PathFind.Point(startX, startY);
         PathFind.Point _to = new PathFind.Point(endX, endY);
 
+        if (tilesMap[_to.x, _to.y] == false)
+            _to = FindNearestValidNode(_from, _to);
+            
         foundPath = false;
         Queue<PathFind.Point> q = new Queue<PathFind.Point>();
         _from.parent = null;
         q.Enqueue(_from);
+
         BFS(q, new bool[19, 11], _to);
 
         PathFind.Point traverse = _to;
@@ -119,5 +125,34 @@ public class Navigator : MonoBehaviour
         }
 
         BFS(queue, visited, dest);
+    }
+
+    static PathFind.Point FindNearestValidNode(PathFind.Point start, PathFind.Point end)
+    {
+        int xDir, yDir;
+        if (end.x - start.x < 0)
+            xDir = 1;
+        else if (end.x - start.x > 0)
+            xDir = -1;
+        else
+            xDir = 0;
+
+        if (end.y - start.y < 0)
+            yDir = 1;
+        else if (end.y - start.y > 0)
+            yDir = -1;
+        else
+            yDir = 0;
+
+        int xPos = end.x, yPos = end.y;
+
+        while (xPos < 19 && xPos >= 0 && yPos < 11 && yPos >= 0 &&
+               tilesMap[xPos, yPos] == false)
+        {
+            xPos += xDir;
+            yPos += yDir;
+        }
+
+        return new PathFind.Point(xPos, yPos);
     }
 }

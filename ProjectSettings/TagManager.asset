@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Selected
   - Tile
+  - Enemy
+  - EnemyBuilding
+  - PlayerBuilding
   layers:
   - Default
   - TransparentFX
@@ -16,7 +19,7 @@ TagManager:
   - 
   - 
   - Building
-  - 
+  - Unit
   - 
   - 
   - 

@@ -6,7 +6,7 @@ public class UnitManager : MonoBehaviour
 {
     [SerializeField] GameObject clickTargetAnimation;
 
-    List<GameObject> units = new List<GameObject>();
+    static List<GameObject> units = new List<GameObject>();
 
     GameObject lastSelectedUnit;
     int selectedSameUnitCount = 0;
@@ -21,20 +21,28 @@ public class UnitManager : MonoBehaviour
             Vector2 mousePos2D = new Vector2(mousePos.x, mousePos.y);
 
             RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
-            if (hit.collider != null && hit.collider.tag == "Player")
+            if (hit.collider != null)
             {
-                Debug.Log(hit.collider.gameObject.name);
-                if (Input.GetKey(KeyCode.LeftControl) == false) 
-                    ClearUnitSelection();
-                SelectUnit(hit.collider.gameObject);
+                if (hit.collider.tag == "Player" && hit.collider.GetComponent<CharacterController>().isAlive)
+                {
+                    if (Input.GetKey(KeyCode.LeftControl) == false)
+                        ClearUnitSelection();
+                    SelectUnit(hit.collider.gameObject);
+                }
+                else if (hit.collider.tag == "Enemy" || hit.collider.tag == "EnemyBuilding")
+                {
+                    Debug.Log(hit.collider.name);
+                    OrderAttack(hit.collider.gameObject);
+                }
+                else
+                {
+                    //if (hit.collider != null) Debug.Log(hit.collider.gameObject.name);
+                    //Debug.Log(mousePos2D);
+                    StartCoroutine(SpawnClickTargetAnimation(hit.collider.transform.position));
+                    MoveSelectedUnits(hit.collider.transform.position);
+                }
             }
-            else if (hit.collider != null)
-            {
-                //if (hit.collider != null) Debug.Log(hit.collider.gameObject.name);
-                //Debug.Log(mousePos2D);
-                StartCoroutine(SpawnClickTargetAnimation(hit.collider.transform.position));
-                MoveSelectedUnits(hit.collider.transform.position, mousePos);
-            }
+
         }
 
         // On Right Click - clear all selected units
@@ -44,10 +52,10 @@ public class UnitManager : MonoBehaviour
         }
     }
 
-    void MoveSelectedUnits(Vector3 tilePos, Vector3 mousePos)
+    void MoveSelectedUnits(Vector3 tilePos)
     {
         foreach (GameObject unit in units)
-            unit.GetComponent<CharacterController>().StartMove(tilePos, mousePos);
+            unit.GetComponent<CharacterController>().StartMove(tilePos);
     }
 
     void SelectUnit(GameObject unit)
@@ -67,13 +75,26 @@ public class UnitManager : MonoBehaviour
         lastSelectedUnit = unit;
     }
 
-    void ClearUnitSelection()
+    static void ClearUnitSelection()
     {
         foreach (GameObject unit in units)
         {
             unit.GetComponent<CharacterController>().OnDeselect();
         }
         units.Clear();
+    }
+
+    public static void RemoveUnit(GameObject unitToRemove)
+    {
+        units.Remove(unitToRemove);
+    }
+
+    void OrderAttack(GameObject target)
+    {
+        foreach (GameObject unit in units)
+        {
+            unit.GetComponent<CharacterController>().Attack(target);
+        }
     }
 
     IEnumerator SpawnClickTargetAnimation(Vector2 mousePos)
