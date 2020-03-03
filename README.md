@@ -1,5 +1,7 @@
 # UnityPiscine_Warcraft
 ![alt-text](https://github.com/dylanmpeck/UnityPiscine_Warcraft/blob/master/UPWarcraft.gif)
+
+[Play Game](https://dylanmpeck.itch.io/unity-piscine-warcraft?secret=roGFlR6oLYU6YjGGBE3bySxS0)
 ___
 ## Overview
 UPWarcraft is an RTS exercise done in two days for a Unity bootcamp. In UPWarcraft, there are two factions (human and orc) and each have a base of 5 buildings. Every 30 seconds each base spawns a new unit to fight the other, however each building a faction loses will increase that spawn time. The first team to destroy the other's base wins the game.
